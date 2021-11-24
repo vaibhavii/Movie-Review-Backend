@@ -1,0 +1,22 @@
+{
+  "name": "movie-review-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaibhavii/Movie-Review-Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vaibhavii/Movie-Review-Backend/issues"
+  },
+  "homepage": "https://github.com/vaibhavii/Movie-Review-Backend#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
