@@ -1,7 +1,23 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mysql = require("mysql");
+const cors = require('cors');
 
 const app = express();
+
+var whitelist = ['http://localhost:3000']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      // callback(new Error('Not allowed by CORS'))
+      callback(null, true);
+    }
+  },
+  credentials: true
+}
+app.use(cors(corsOptions));
 
 const PORT = 5000;
 
@@ -9,7 +25,7 @@ const PORT = 5000;
 app.use(bodyParser.json());
 
 // load mysql package
-const mysql = require("mysql");
+
 
 // create mysql connection
 const connection = mysql.createConnection({
@@ -47,7 +63,22 @@ app.get("/users", function (request, response) {
 app.get("/movie", function (request, response) {
 
     // query
-    connection.query("SELECT * from getallmovieinfo", function(error, results, fields){
+    connection.query("SELECT * from getallmovieinfo LIMIT 50", function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/movie/:name", function (request, response) {
+
+    // query
+    var movie_name = request.params.name;
+    connection.query("SELECT * from movie WHERE Name = ?", [movie_name], function(error, results, fields){
 
           if(error){
               throw error;
@@ -62,6 +93,22 @@ app.get("/movie/highestrated", function (request, response) {
 
     // query
     connection.query("SELECT * from highestratedmovieinfo", function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/favorites/user/:userId/movie/:movieId", function (request, response) {
+
+    // query
+    var userId = request.params.userId;
+    var movieId = request.params.movieId;
+    connection.query("SELECT * from favorites WHERE UserId=? AND MovieID=?", [userId,movieId], function(error, results, fields){
 
           if(error){
               throw error;
@@ -182,6 +229,24 @@ app.delete("/user/:id", function(request, response){
             response.json({
                 status : 1,
                 message: "User has been deleted successfully",
+                data: result
+            });
+        }
+    });
+});
+
+app.delete("/favorites/:id", function(request, response){
+
+    connection.query("DELETE FROM favorites WHERE FavoriteId = ?", [request.params.id], function(error, result, fields){
+
+        if(error){
+
+            throw error;
+        }else{
+
+            response.json({
+                status : 1,
+                message: "Favorite has been deleted successfully",
                 data: result
             });
         }
@@ -428,13 +493,32 @@ app.get("/users/all", function(request, response){
     });
 });
 
-app.get("/search", function (request, response) {
+app.get("/search/:name", function (request, response) {
 
     // query
-    var keyword = request.body.keyword;
+    var keyword = request.params.name;
     console.log(keyword);
     connection.query(
-        "SELECT * FROM movies.getallmovieinfo WHERE MovieName LIKE ?;", [keyword],
+        "SELECT * FROM movies.getallmovieinfo WHERE MovieName LIKE " + "'%" + keyword + "%';", [keyword],
+     function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.post("/login", function (request, response) {
+
+    // query
+    var username = request.body.username;
+    var password = request.body.password;
+    
+    connection.query(
+        "SELECT user.UserId FROM user WHERE user.Username = ? AND user.Password = ?;", [username, password],
      function(error, results, fields){
 
           if(error){
