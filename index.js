@@ -89,10 +89,24 @@ app.get("/movie/:name", function (request, response) {
     });
 });
 
-app.get("/movie/highestrated", function (request, response) {
+app.get("/highestratedmovie", function (request, response) {
 
     // query
-    connection.query("SELECT * from highestratedmovieinfo", function(error, results, fields){
+    connection.query("SELECT * FROM movies.highratedinfodesc;", function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/highestgrossingmovies", function (request, response) {
+
+    // query
+    connection.query("SELECT * FROM movies.highestgrossingmovies;", function(error, results, fields){
 
           if(error){
               throw error;
@@ -110,6 +124,48 @@ app.get("/favorites/user/:userId/movie/:movieId", function (request, response) {
     var movieId = request.params.movieId;
     connection.query("SELECT * from favorites WHERE UserId=? AND MovieID=?", [userId,movieId], function(error, results, fields){
 
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/moviereviews/:userId", function (request, response) {
+
+    // query
+    var userId = request.params.userId;
+    connection.query("select avg(Rating) AS AVG_RATING,Name AS MovieName , count(*) AS TotalReviews,movie.MovieID AS MovieID,ImageUrl AS ImageUrl,LongMinutes AS LongMinutes,Description AS Description,Genre AS Genre,ReleaseDate AS ReleaseDate,BoxOfficeCollection AS BoxOfficeCollection,Writer AS Writer,Director AS Director,Actors AS Actors,Language AS Language from (movie left join review on((movie.MovieID = review.MovieID))) where review.UserId = ? group by movie.MovieID", [userId], function(error, results, fields){
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/moviefavorites/:userId", function (request, response) {
+
+    // query
+    var userId = request.params.userId;
+    connection.query("select avg(Rating) AS AVG_RATING,"+
+    "Name AS MovieName , count(*) AS TotalReviews,"+
+    "movie.MovieID AS MovieID,ImageUrl AS ImageUrl,"+
+    "LongMinutes AS LongMinutes,Description AS Description,"+
+    "Genre AS Genre,ReleaseDate AS ReleaseDate," +
+    "BoxOfficeCollection AS BoxOfficeCollection,"+
+    "Writer AS Writer,Director AS Director,"+
+    "Actors AS Actors,"+
+    "Language AS Language "+
+    "from movie left join review "+
+    "on movie.MovieID = review.MovieID "+
+    "left join favorites "+
+    "on movie.MovieID = favorites.MovieID "+
+   " where favorites.UserId = ?"+
+    "group by movie.MovieID;", [userId], function(error, results, fields){
           if(error){
               throw error;
           }else{
@@ -533,4 +589,22 @@ app.post("/login", function (request, response) {
 app.listen(PORT, function () {
 
     console.log("Server is running at 5000 port");
+});
+
+app.get("/search/:name", function (request, response) {
+
+    // query
+    var keyword = request.params.name;
+    console.log(keyword);
+    connection.query(
+        "SELECT * FROM movies.getallmovieinfo WHERE MovieName LIKE " + "'%" + keyword + "%';", [keyword],
+     function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
 });
