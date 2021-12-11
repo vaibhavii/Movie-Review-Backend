@@ -59,6 +59,92 @@ app.get("/users", function (request, response) {
     });
 });
 
+app.get("/avgratings", function (request, response) {
+
+    object = {};
+    genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
+
+    // query
+    
+    for (let i = 0; i < genres.length; i++){
+        connection.query("SELECT AVGRATINGBYGENRE(?) AS AVG", [genres[i]], function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                const jsonRes = JSON.parse(JSON.stringify(results))
+                object[genres[i]] = jsonRes[0]["AVG"]
+            } 
+        });
+    }
+        connection.query("SELECT * from review", function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                response.json(object)
+            } 
+    });
+});
+
+app.get("/avgboxoffice", function (request, response) {
+
+    object = {};
+    genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
+
+    // query
+    
+    for (let i = 0; i < genres.length; i++){
+        connection.query("SELECT AVG(BoxOfficeCollection) AS AVG FROM movie WHERE Genre LIKE " + "'%" + genres[i] + "%';" , function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                console.log(results);
+                const jsonRes = JSON.parse(JSON.stringify(results))
+                object[genres[i]] = jsonRes[0]["AVG"]
+            } 
+        });
+    }
+        connection.query("SELECT * from review", function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                response.json(object)
+            } 
+    });
+});
+
+app.get("/totalreviewgenre", function (request, response) {
+
+    object = {};
+    genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
+
+    // query
+    
+    for (let i = 0; i < genres.length; i++){
+        connection.query("SELECT TOTALREVIEWBYGENRE(?) AS COUNT" , [genres[i]], function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                console.log(results);
+                const jsonRes = JSON.parse(JSON.stringify(results))
+                object[genres[i]] = jsonRes[0]["COUNT"]
+            } 
+        });
+    }
+        connection.query("SELECT * from review", function(error, results, fields){
+
+            if(error){
+                throw error;
+            }else{
+                response.json(object)
+            } 
+    });
+});
+
 app.get("/users/:userId", function (request, response) {
 
     // query
