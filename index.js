@@ -55,7 +55,19 @@ app.get("/users", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/users/:userId", function (request, response) {
+
+    // query
+    connection.query("SELECT * from user WHERE user.UserId = ?",[request.params.userId], function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
           } 
     });
 });
