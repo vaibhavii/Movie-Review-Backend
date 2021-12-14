@@ -61,19 +61,22 @@ app.get("/users", function (request, response) {
 
 app.get("/avgratings", function (request, response) {
 
-    object = {};
+    
     genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
 
     // query
-    
+    data = []
     for (let i = 0; i < genres.length; i++){
         connection.query("SELECT AVGRATINGBYGENRE(?) AS AVG", [genres[i]], function(error, results, fields){
 
             if(error){
                 throw error;
             }else{
+                object = {};
                 const jsonRes = JSON.parse(JSON.stringify(results))
-                object[genres[i]] = jsonRes[0]["AVG"]
+                object["Genre"] = genres[i];
+                object["Average Rating"] = (jsonRes[0]["AVG"]);
+                data.push(object);
             } 
         });
     }
@@ -82,27 +85,29 @@ app.get("/avgratings", function (request, response) {
             if(error){
                 throw error;
             }else{
-                response.json(object)
+                response.json(data)
             } 
     });
 });
 
 app.get("/avgboxoffice", function (request, response) {
 
-    object = {};
+    
     genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
 
     // query
-    
+    const data = []
     for (let i = 0; i < genres.length; i++){
         connection.query("SELECT AVG(BoxOfficeCollection) AS AVG FROM movie WHERE Genre LIKE " + "'%" + genres[i] + "%';" , function(error, results, fields){
 
             if(error){
                 throw error;
             }else{
-                console.log(results);
+                object = {};
                 const jsonRes = JSON.parse(JSON.stringify(results))
-                object[genres[i]] = jsonRes[0]["AVG"]
+                object["Genre"] = genres[i];
+                object["Box Office Collection"] = (jsonRes[0]["AVG"]);
+                data.push(object);
             } 
         });
     }
@@ -111,14 +116,14 @@ app.get("/avgboxoffice", function (request, response) {
             if(error){
                 throw error;
             }else{
-                response.json(object)
+                response.json(data)
             } 
     });
 });
 
 app.get("/totalreviewgenre", function (request, response) {
 
-    object = {};
+    data = [];
     genres = ['Romance', 'Action', 'Adventure', 'Crime', 'Drama', 'Fantasy', 'History','Horror','Musical','Mystery', 'Sci-fi','Thriller', 'War']
 
     // query
@@ -129,9 +134,11 @@ app.get("/totalreviewgenre", function (request, response) {
             if(error){
                 throw error;
             }else{
-                console.log(results);
+                object = {}
                 const jsonRes = JSON.parse(JSON.stringify(results))
-                object[genres[i]] = jsonRes[0]["COUNT"]
+                object["Genre"] = genres[i]
+                object["Total Reviews"] = jsonRes[0]["COUNT"]
+                data.push(object)
             } 
         });
     }
@@ -140,7 +147,7 @@ app.get("/totalreviewgenre", function (request, response) {
             if(error){
                 throw error;
             }else{
-                response.json(object)
+                response.json(data)
             } 
     });
 });
