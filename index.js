@@ -515,7 +515,7 @@ app.post("/user", function(request, response){
     
     
 
-    connection.query("CALL InsertUserDetails(?,?,?,?,?)", [FirstName,LastName,Username,Password,Location],
+    connection.query("CALL InsertUserDetails(?,?,?,?,?,?)", [FirstName,LastName,Username,Password,Location,new Date()],
      function(error, result, fields){
 
         if(error){
