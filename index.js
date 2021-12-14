@@ -208,6 +208,68 @@ app.get("/highestratedmovie", function (request, response) {
     });
 });
 
+app.get("/usersAnalytics", function (request, response) {
+
+    // query
+    connection.query("SELECT COUNT(*) AS Users_Count, Location FROM movies.user GROUP BY Location;", function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              response.json(results);
+              //console.log(fields);
+          } 
+    });
+});
+
+app.get("/analytics", function (request, response) {
+
+    var obj = {}
+
+    // query
+    connection.query("SELECT REVIEWSWEEK() AS REVIEWS", function(error, results, fields){
+
+          if(error){
+              throw error;
+          }else{
+              
+              jsonRes= JSON.parse(JSON.stringify(results))
+              console.log(jsonRes);
+              obj["Reviews"]  = jsonRes[0]["REVIEWS"]
+              //console.log(fields);
+          } 
+    });
+    connection.query("SELECT USERSPASTWEEK() AS USERS", function(error, results, fields){
+
+        if(error){
+            throw error;
+        }else{
+            jsonRes= JSON.parse(JSON.stringify(results))
+              obj["Users"]  = jsonRes[0]["USERS"]
+            //console.log(fields);
+        } 
+  });
+  connection.query("SELECT TOTALMOVIES() AS MOVIES", function(error, results, fields){
+
+    if(error){
+        throw error;
+    }else{
+        jsonRes= JSON.parse(JSON.stringify(results))
+          obj["Movies"]  = jsonRes[0]["MOVIES"]
+        //console.log(fields);
+    } 
+});
+    connection.query("SELECT REVIEWSWEEK()", function(error, results, fields){
+
+        if(error){
+            throw error;
+        }else{
+            response.json(obj);
+            //console.log(fields);
+        } 
+  });
+});
+
 app.get("/highestgrossingmovies", function (request, response) {
 
     // query
