@@ -5,13 +5,13 @@ const cors = require('cors');
 
 const app = express();
 
+// add cors settings
 var whitelist = ['http://localhost:3000']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      // callback(new Error('Not allowed by CORS'))
       callback(null, true);
     }
   },
@@ -23,8 +23,6 @@ const PORT = 5000;
 
 // include body parser for body parameters
 app.use(bodyParser.json());
-
-// load mysql package
 
 
 // create mysql connection
@@ -46,6 +44,9 @@ connection.connect(function (error) {
     }
 });
 
+//APIS
+
+//get users
 app.get("/users", function (request, response) {
 
     // query
@@ -59,6 +60,7 @@ app.get("/users", function (request, response) {
     });
 });
 
+// get average rating by genre
 app.get("/avgratings", function (request, response) {
 
     
@@ -90,6 +92,7 @@ app.get("/avgratings", function (request, response) {
     });
 });
 
+// get avg box office collection by genre
 app.get("/avgboxoffice", function (request, response) {
 
     
@@ -121,6 +124,7 @@ app.get("/avgboxoffice", function (request, response) {
     });
 });
 
+// get total reviews by genre
 app.get("/totalreviewgenre", function (request, response) {
 
     data = [];
@@ -152,6 +156,7 @@ app.get("/totalreviewgenre", function (request, response) {
     });
 });
 
+// get user details by user id
 app.get("/users/:userId", function (request, response) {
 
     // query
@@ -165,6 +170,7 @@ app.get("/users/:userId", function (request, response) {
     });
 });
 
+// get all movie information
 app.get("/movie", function (request, response) {
 
     // query
@@ -174,11 +180,11 @@ app.get("/movie", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
           } 
     });
 });
 
+// search movie by keyword
 app.get("/movie/:name", function (request, response) {
 
     // query
@@ -189,11 +195,11 @@ app.get("/movie/:name", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
           } 
     });
 });
 
+// get highest rated movies
 app.get("/highestratedmovie", function (request, response) {
 
     // query
@@ -203,11 +209,11 @@ app.get("/highestratedmovie", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
           } 
     });
 });
 
+// get total users by country
 app.get("/usersAnalytics", function (request, response) {
 
     // query
@@ -217,11 +223,11 @@ app.get("/usersAnalytics", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
           } 
     });
 });
 
+// get basic analysis
 app.get("/analytics", function (request, response) {
 
     var obj = {}
@@ -246,7 +252,7 @@ app.get("/analytics", function (request, response) {
         }else{
             jsonRes= JSON.parse(JSON.stringify(results))
               obj["Users"]  = jsonRes[0]["USERS"]
-            //console.log(fields);
+            
         } 
   });
   connection.query("SELECT TOTALMOVIES() AS MOVIES", function(error, results, fields){
@@ -256,7 +262,7 @@ app.get("/analytics", function (request, response) {
     }else{
         jsonRes= JSON.parse(JSON.stringify(results))
           obj["Movies"]  = jsonRes[0]["MOVIES"]
-        //console.log(fields);
+        
     } 
 });
     connection.query("SELECT REVIEWSWEEK()", function(error, results, fields){
@@ -265,11 +271,12 @@ app.get("/analytics", function (request, response) {
             throw error;
         }else{
             response.json(obj);
-            //console.log(fields);
+            
         } 
   });
 });
 
+// get highest grossing movies
 app.get("/highestgrossingmovies", function (request, response) {
 
     // query
@@ -284,9 +291,9 @@ app.get("/highestgrossingmovies", function (request, response) {
     });
 });
 
+// get favorites by user and movie
 app.get("/favorites/user/:userId/movie/:movieId", function (request, response) {
 
-    // query
     var userId = request.params.userId;
     var movieId = request.params.movieId;
     connection.query("SELECT * from favorites WHERE UserId=? AND MovieID=?", [userId,movieId], function(error, results, fields){
@@ -295,25 +302,28 @@ app.get("/favorites/user/:userId/movie/:movieId", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
+              
           } 
     });
 });
 
+
+// get reviews by user
 app.get("/moviereviews/:userId", function (request, response) {
 
-    // query
+   
     var userId = request.params.userId;
     connection.query("select avg(Rating) AS AVG_RATING,Name AS MovieName , count(*) AS TotalReviews,movie.MovieID AS MovieID,ImageUrl AS ImageUrl,LongMinutes AS LongMinutes,Description AS Description,Genre AS Genre,ReleaseDate AS ReleaseDate,BoxOfficeCollection AS BoxOfficeCollection,Writer AS Writer,Director AS Director,Actors AS Actors,Language AS Language from (movie left join review on((movie.MovieID = review.MovieID))) where review.UserId = ? group by movie.MovieID", [userId], function(error, results, fields){
           if(error){
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
+              
           } 
     });
 });
 
+// get favorites by user
 app.get("/moviefavorites/:userId", function (request, response) {
 
     // query
@@ -337,14 +347,14 @@ app.get("/moviefavorites/:userId", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
+              
           } 
     });
 });
 
+// get reviews by movie
 app.get("/review/movie/:movieid", function (request, response) {
 
-    // query
     var movie_id = request.params.movieid;
     connection.query(
         "SELECT user.Username, review.Rating, review.Review, review.DateCreated, user.UserId, review.ReviewId from review join user on review.UserId = user.UserId WHERE review.MovieID = ?",
@@ -354,8 +364,7 @@ app.get("/review/movie/:movieid", function (request, response) {
           if(error){
               throw error;
           }else{
-              response.json(results);
-              //console.log(fields);
+              response.json(results);   
           } 
     });
 });
@@ -373,7 +382,6 @@ app.get("/review/user/:userid", function (request, response) {
               throw error;
           }else{
               response.json(results);
-              //console.log(fields);
           } 
     });
 });
@@ -396,6 +404,8 @@ app.get("/review/movie/:movieid/user/:userid", function (request, response) {
           } 
     });
 });
+
+// delete apis ----
 
 app.delete("/review/:id", function(request, response){
 
@@ -497,6 +507,8 @@ app.delete("/favorite", function(request, response){
     });
 });
 
+// insert movie
+
 app.post("/movie", function(request, response){
 
     var Name = request.body.Name;
@@ -530,6 +542,8 @@ app.post("/movie", function(request, response){
         }
     });
 });
+
+// update movie
 
 app.put("/movie", function(request, response){
 
